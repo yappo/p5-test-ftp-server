@@ -87,6 +87,18 @@ test_tcp(
 			'get same content (puted)'
 		);
 
+		my $renamefile = basename($samplefile) . '.rename.txt';
+		ok($ftp->rename(basename($samplefile), $renamefile), 'rename file');
+
+		my ($fh3, $fn3) = tempfile();
+		close($fh3);
+		ok($ftp->get($renamefile, $fn3), 'get file (puted)');
+		is(
+			do{ local $/; open(my $fh, '<', $samplefile); <$fh> },
+			do{ local $/; open(my $fh, '<', $fn3); <$fh> },
+			'get same content (puted)'
+		);
+
 		ok($ftp->quit());
 	},
 );

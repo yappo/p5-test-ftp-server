@@ -6,6 +6,7 @@ use warnings;
 our $VERSION = '0.011';
 
 use Cwd qw/ realpath /;
+use File::Basename;
 use File::Spec;
 
 sub execute {
@@ -32,6 +33,13 @@ sub execute {
 		}
 		$handle->{_pathname} =~ s{/+}{/}g;
 
+		# for RENAME command
+		my $original_dirh_pathname;
+		if ($method eq 'move') {
+			$original_dirh_pathname = $args[0]->{_pathname};
+			$args[0]->{_pathname} = dirname($handle->{_pathname}) . '/';
+		}
+
 		my (@array, $scalar);
 		if (wantarray) {
 			@array = $handle->$method(@args);
@@ -40,6 +48,9 @@ sub execute {
 			$scalar = $handle->$method(@args);
 		}
 		$handle->{_pathname} = $original_pathname;
+		if ($method eq 'move') {
+			$args[0]->{_pathname} = $original_dirh_pathname;
+                    }
 
 		if (wantarray) {
 			@array;
